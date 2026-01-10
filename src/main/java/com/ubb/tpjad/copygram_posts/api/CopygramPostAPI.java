@@ -5,6 +5,7 @@ public final class CopygramPostAPI {
 
     // Paths
     private static final String POSTS_PATH = "posts";
+    private static final String USERS_PATH = "users";
     private static final String PICTURES_PATH = "pictures";
     private static final String COMMENTS_PATH = "comments";
     private static final String METADATA_PATH = "metadata";
@@ -14,6 +15,7 @@ public final class CopygramPostAPI {
 
     // Endpoints
     public static final String POSTS_ENDPOINT = "/" + POSTS_PATH;
+    public static final String USERS_POSTS_ENDPOINT = POSTS_ENDPOINT + "/" + USERS_PATH;
     public static final String POSTS_RANDOM_ENDPOINT = POSTS_ENDPOINT + "/" + RANDOM_PATH;
     public static final String POST_COMMENTS_ENDPOINT = POSTS_ENDPOINT + "/" + COMMENTS_PATH;
     public static final String COMMENT_LIKES_ENDPOINT = POST_COMMENTS_ENDPOINT + "/" + LIKES_PATH;

@@ -1,20 +1,16 @@
 package com.ubb.tpjad.copygram_posts.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import java.util.Set;
-
-@Data
+@Getter
+@Setter
 @Entity
-@Builder
+@SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "post")
-public class Post {
+public class Post extends AuditEntity {
     @Id
     @Column
     private String id;
@@ -27,10 +23,4 @@ public class Post {
 
     @Column(name = "description")
     private String description;
-
-    @Column(name = "likes_count")
-    private long likesCount;
-
-    @OneToMany(mappedBy = "post")
-    private Set<Comment> postComments;
 }

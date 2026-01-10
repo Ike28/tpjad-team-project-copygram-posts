@@ -9,23 +9,13 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @SuperBuilder
 @NoArgsConstructor
-@Table(name = "comment")
-public class Comment extends AuditEntity {
-    @Id
-    @Column
-    private String id;
-
-    @Column(name = "user_id")
-    private String userId;
-
+@Table(name = "post_like")
+public class PostLike extends UserLike {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(
             name = "post_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_comment_post")
+            foreignKey = @ForeignKey(name = "fk_post_like_post")
     )
     private Post post;
-
-    @Column
-    private String text;
 }
