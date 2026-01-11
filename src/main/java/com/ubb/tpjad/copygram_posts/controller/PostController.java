@@ -33,12 +33,13 @@ public class PostController {
 
     @GetMapping(CopygramPostAPI.POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getCurrentUserPosts(Authentication authentication) {
-        return null;
+        val userId = authentication.getName();
+        return ResponseEntity.ok(postService.getPostsByUserId(userId));
     }
 
     @GetMapping(CopygramPostAPI.USERS_POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getPostsByUserId(@RequestParam(CopygramPostAPI.USER_ID_QUERY_PARAM) String userId) {
-        return null;
+        return ResponseEntity.ok(postService.getPostsByUserId(userId));
     }
 
     @GetMapping(CopygramPostAPI.POST_PICTURE_ENDPOINT)
@@ -61,8 +62,8 @@ public class PostController {
     }
 
     @GetMapping(CopygramPostAPI.POST_METADATA_ENDPOINT)
-    public ResponseEntity<PostDto> getPostMetadata(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId) {
-        val postMetadata = postService.getPostWithMetadata(postId);
+    public ResponseEntity<PostMetadataDto> getPostMetadata(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId) {
+        val postMetadata = postService.getPostMetadata(postId);
         return ResponseEntity.ok(postMetadata);
     }
 
@@ -88,19 +89,24 @@ public class PostController {
     @DeleteMapping(CopygramPostAPI.POSTS_ENDPOINT)
     public ResponseEntity<Void> deletePost(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
                                            Authentication authentication) {
-        postService.deletePost(postId);
+        val userId = authentication.getName();
+        postService.deletePost(postId, userId);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(CopygramPostAPI.POST_LIKES_ENDPOINT)
     public ResponseEntity<Void> postLike(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
                                          Authentication authentication) {
-        return null;
+        val userId = authentication.getName();
+        postService.postLike(postId, userId);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(CopygramPostAPI.POST_LIKES_ENDPOINT)
     public ResponseEntity<Void> postUnlike(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
                                            Authentication authentication) {
-        return null;
+        val userId = authentication.getName();
+        postService.postUnlike(postId, userId);
+        return ResponseEntity.noContent().build();
     }
 }

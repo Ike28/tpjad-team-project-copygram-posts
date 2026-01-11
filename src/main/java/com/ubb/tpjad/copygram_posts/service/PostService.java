@@ -1,12 +1,13 @@
 package com.ubb.tpjad.copygram_posts.service;
 
+import com.ubb.tpjad.copygram_posts.api.UserPostsResponse;
 import com.ubb.tpjad.copygram_posts.api.dto.PostDto;
+import com.ubb.tpjad.copygram_posts.api.dto.PostMetadataDto;
+import com.ubb.tpjad.copygram_posts.api.exception.InvalidLikeActionException;
 import com.ubb.tpjad.copygram_posts.api.exception.InvalidPostException;
-import com.ubb.tpjad.copygram_posts.entity.Post;
-import com.ubb.tpjad.copygram_posts.mapper.CommentMapper;
+import com.ubb.tpjad.copygram_posts.api.exception.UnauthorizedDeletionException;
+import com.ubb.tpjad.copygram_posts.entity.PostLike;
 import com.ubb.tpjad.copygram_posts.mapper.PostMapper;
-import com.ubb.tpjad.copygram_posts.repository.CommentLikeRepository;
-import com.ubb.tpjad.copygram_posts.repository.CommentRepository;
 import com.ubb.tpjad.copygram_posts.repository.PostLikeRepository;
 import com.ubb.tpjad.copygram_posts.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,40 +23,36 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class PostService {
     private final RemotePhotoClient photoClient;
+    private final CommentService commentService;
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
-    private final CommentRepository commentRepository;
-    private final CommentLikeRepository commentLikeRepository;
-    private final PostMapper postMapper;
-    private final CommentMapper commentMapper;
+    private final PostMapper mapper;
 
     public PostDto createPost(String description, MultipartFile photo, String userId) {
         val photoUploadResponse = photoClient.uploadPostPhoto(photo, description, userId);
         if (photoUploadResponse.getBody() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Photo upload returned unexpected result");
         }
-        val postEntity = Post.builder()
-                .userId(userId)
-                .pictureId(photoUploadResponse.getBody().id().toString())
-                .description(description)
-                .build();
+        val postEntity = mapper.map(userId, photoUploadResponse.getBody().id().toString(), description);
         val persisted = postRepository.save(postEntity);
-        return postMapper.map(persisted);
+        return mapper.map(persisted);
     }
 
-    public PostDto getPostWithMetadata(String postId) {
+    public PostMetadataDto getPostMetadata(String postId) {
         val post = postRepository.findById(postId).orElseThrow(() -> new InvalidPostException(postId));
         val postLikes = postLikeRepository.countByPost_Id(postId);
-        val postComments = commentRepository.findByPost_Id(postId);
 
-        val mappedComments = postComments.stream()
-                .map(commentEntity -> {
-                    val commentLikes = commentLikeRepository.countByComment_Id(commentEntity.getId());
-                    return commentMapper.map(commentEntity, commentLikes);
-                })
+        val mappedComments = commentService.getPostCommentsWithMetadata(postId);
+
+        return mapper.map(post, postLikes, mappedComments);
+    }
+
+    public UserPostsResponse getPostsByUserId(String userId) {
+        val userPosts = postRepository.findByUserId(userId)
+                .stream()
+                .map(mapper::map)
                 .toList();
-
-        return postMapper.map(post, postLikes, mappedComments);
+        return new UserPostsResponse(userId, userPosts);
     }
 
     public String getPhotoIdForPost(String postId) {
@@ -63,7 +60,30 @@ public class PostService {
         return post.getPictureId();
     }
 
-    public void deletePost(String postId) {
+    public void deletePost(String postId, String userId) {
+        if (!postRepository.existsByIdAndUserId(postId, userId)) {
+            throw UnauthorizedDeletionException.unauthorizedPostDelete(userId, postId);
+        }
         postRepository.deleteById(postId);
+    }
+
+    public void postLike(String postId, String userId) {
+        if (postLikeRepository.existsByUserIdAndPost_Id(userId, postId)) {
+            throw InvalidLikeActionException.duplicatePostLike(postId, userId);
+        }
+
+        val post = postRepository.findById(postId).orElseThrow(() -> new InvalidPostException(postId));
+        val postLikeEntity = PostLike.builder()
+                .userId(userId)
+                .post(post)
+                .build();
+        postLikeRepository.save(postLikeEntity);
+    }
+
+    public void postUnlike(String postId, String userId) {
+        if (!postLikeRepository.existsByUserIdAndPost_Id(userId, postId)) {
+            throw InvalidLikeActionException.invalidPostUnlike(postId, userId);
+        }
+        postLikeRepository.deleteByUserIdAndPost_Id(userId, postId);
     }
 }
