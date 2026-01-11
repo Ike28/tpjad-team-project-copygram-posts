@@ -29,4 +29,9 @@ public final class CopygramPostAPI {
     public static final String POST_ID_QUERY_PARAM = "post_id";
     public static final String COMMENT_ID_QUERY_PARAM = "comment_id";
     public static final String POSTS_NUMBER_QUERY_PARAM = "posts_count";
+
+    // Photos API
+    public static final String POST_DESCRIPTION_REQUEST_PARAM = "description";
+    public static final String POST_PHOTO_FILE_REQUEST_PARAM = "file";
+    public static final String PHOTO_USER_ID_REQUEST_PARAM = "userId";
 }
