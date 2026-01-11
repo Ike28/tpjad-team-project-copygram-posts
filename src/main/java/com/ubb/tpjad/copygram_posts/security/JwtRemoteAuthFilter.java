@@ -39,7 +39,7 @@ public class JwtRemoteAuthFilter extends OncePerRequestFilter {
 
         RemoteAuthResult result;
         try {
-            result = remoteAuthClient.validate(token);
+            result = remoteAuthClient.validate("Bearer " + token);
         } catch (Exception e) {
             log.error("Authorization service unavailable.", e);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Authorization service unavailable");
