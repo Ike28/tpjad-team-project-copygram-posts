@@ -17,7 +17,6 @@ public class CopygramPostsControllerAdvice {
             InvalidCommentException.class,
             InvalidLikeActionException.class
     })
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponseDto> badRequest(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ErrorResponseDto.builder()
                 .message(e.getMessage())
@@ -25,7 +24,6 @@ public class CopygramPostsControllerAdvice {
     }
 
     @ExceptionHandler(LimitExceededException.class)
-    @ResponseStatus(HttpStatus.CONTENT_TOO_LARGE)
     public ResponseEntity<ErrorResponseDto> limitExceeded(LimitExceededException e) {
         return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(ErrorResponseDto.builder()
                 .message("Limit specified is too high, check provided limit")
@@ -34,7 +32,6 @@ public class CopygramPostsControllerAdvice {
     }
 
     @ExceptionHandler(UnauthorizedDeletionException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<ErrorResponseDto> unauthorizedDeletion(UnauthorizedDeletionException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ErrorResponseDto.builder()
                 .message(e.getMessage())

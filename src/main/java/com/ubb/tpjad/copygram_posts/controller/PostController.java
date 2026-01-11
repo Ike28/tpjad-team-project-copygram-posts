@@ -46,7 +46,8 @@ public class PostController {
     @Operation(summary = "Get posts for current logged-in user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of user's posts",
-                    content = @Content(schema = @Schema(implementation = UserPostsResponse.class)))
+                    content = @Content(schema = @Schema(implementation = UserPostsResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @GetMapping(CopygramPostAPI.POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getCurrentUserPosts(Authentication authentication) {
@@ -57,7 +58,8 @@ public class PostController {
     @Operation(summary = "Get posts for specified user by userId")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of user's posts",
-                    content = @Content(schema = @Schema(implementation = UserPostsResponse.class)))
+                    content = @Content(schema = @Schema(implementation = UserPostsResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @GetMapping(CopygramPostAPI.USERS_POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getPostsByUserId(@RequestParam(CopygramPostAPI.USER_ID_QUERY_PARAM) String userId) {
@@ -69,7 +71,8 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Photo retrieved from server",
                     content = @Content(schema = @Schema(implementation = byte[].class))),
             @ApiResponse(responseCode = "400", description = "Invalid postId provided",
-                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}")))
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}"))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @GetMapping(CopygramPostAPI.POST_PICTURE_ENDPOINT)
     public ResponseEntity<byte[]> getPostPicture(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
@@ -95,7 +98,8 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "Post metadata",
                     content = @Content(schema = @Schema(implementation = PostMetadataDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid postId provided",
-                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}")))
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}"))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @GetMapping(CopygramPostAPI.POST_METADATA_ENDPOINT)
     public ResponseEntity<PostMetadataDto> getPostMetadata(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId) {
@@ -108,6 +112,7 @@ public class PostController {
             @ApiResponse(responseCode = "200", description = "List of randomly selected posts",
                     content = @Content(schema = @Schema(implementation = List.class))),
             @ApiResponse(responseCode = "204", description = "No posts are available or negative specified limit"),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized"),
             @ApiResponse(responseCode = "413", description = "Limit specified is too high, check provided limit",
                     content = @Content(schema = @Schema(example = "{\"error\": \"Limit specified is too high, check provided limit\", \"limit\": 100}")))
     })
@@ -130,6 +135,7 @@ public class PostController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Post created",
                     content = @Content(schema = @Schema(implementation = PostDto.class))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized"),
             @ApiResponse(responseCode = "502", description = "Photo upload service returned unexpected result")
     })
     @PostMapping(
@@ -152,7 +158,8 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Invalid postId provided",
                     content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}"))),
             @ApiResponse(responseCode = "400", description = "Duplicate like request attempted",
-                    content = @Content(schema = @Schema(example = "{\"error\": \"Duplicate like request for entity 1 of type POST from user abc\"}")))
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Duplicate like request for entity 1 of type POST from user abc\"}"))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @PostMapping(CopygramPostAPI.POST_LIKES_ENDPOINT)
     public ResponseEntity<Void> postLike(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
@@ -168,7 +175,8 @@ public class PostController {
             @ApiResponse(responseCode = "400", description = "Invalid postId provided",
                     content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid unlike request attempted",
-                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid unlike request for entity 1 of type POST from user abc\"}")))
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid unlike request for entity 1 of type POST from user abc\"}"))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @DeleteMapping(CopygramPostAPI.POST_LIKES_ENDPOINT)
     public ResponseEntity<Void> postUnlike(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
@@ -181,6 +189,7 @@ public class PostController {
     @Operation(summary = "Delete logged-in user's post by postId, will also delete likes, comments and comment likes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Post deleted"),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized"),
             @ApiResponse(responseCode = "403", description = "User is forbidden to delete post, most likely attempting to delete other user's post",
                     content = @Content(schema = @Schema(example = "{\"error\": \"User abc is unauthorized to delete entity 1 of type POST\"}")))
     })

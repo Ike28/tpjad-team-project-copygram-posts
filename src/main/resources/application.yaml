@@ -2,8 +2,14 @@ spring:
   application:
     name: copygram_posts
   jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
     hibernate:
       ddl-auto: validate
+  datasource:
+    url: jdbc:mysql://localhost:3306/copygram_posts
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 server:
   port: 8828

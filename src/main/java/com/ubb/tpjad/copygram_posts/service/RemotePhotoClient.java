@@ -22,11 +22,8 @@ public class RemotePhotoClient {
     @Value("${photos.base-url}")
     private String photosBaseUrl;
 
-    @Value("${photos.retrieve-path}")
-    private String retrievePath;
-
-    @Value("${photos.upload-path}")
-    private String uploadPath;
+    @Value("${photos.path}")
+    private String photosPath;
 
     public RemotePhotoClient() {
         this.restClient = RestClient.builder()
@@ -37,7 +34,7 @@ public class RemotePhotoClient {
     public ResponseEntity<byte[]> retrievePostPhoto(String photoId, String authHeader) {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path(retrievePath)
+                        .path(photosPath)
                         .pathSegment("{%s}".formatted(photoId))
                         .build())
                 .header(HttpHeaders.AUTHORIZATION, authHeader)
@@ -71,7 +68,7 @@ public class RemotePhotoClient {
 
         return restClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path(uploadPath)
+                        .path(photosPath)
                         .build())
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)

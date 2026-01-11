@@ -31,7 +31,8 @@ public class CommentController {
             @ApiResponse(responseCode = "201", description = "Post comment created",
                     content = @Content(schema = @Schema(implementation = PostCommentDto.class))),
             @ApiResponse(responseCode = "400", description = "Invalid postId provided in payload",
-                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}")))
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid postId 1\"}"))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @PostMapping(CopygramPostAPI.POST_COMMENTS_ENDPOINT)
     public ResponseEntity<PostCommentDto> postComment(@RequestBody PostCommentDto commentDto,
@@ -52,7 +53,8 @@ public class CommentController {
             @ApiResponse(responseCode = "400", description = "Invalid commentId provided",
                     content = @Content(schema = @Schema(example = "{\"error\": \"Invalid commentId 1\"}"))),
             @ApiResponse(responseCode = "400", description = "Duplicate like request attempted",
-                    content = @Content(schema = @Schema(example = "{\"error\": \"Duplicate like request for entity 1 of type COMMENT from user abc\"}")))
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Duplicate like request for entity 1 of type COMMENT from user abc\"}"))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @PostMapping(CopygramPostAPI.COMMENT_LIKES_ENDPOINT)
     public ResponseEntity<Void> commentLike(@RequestParam(CopygramPostAPI.COMMENT_ID_QUERY_PARAM) String commentId,
@@ -68,7 +70,8 @@ public class CommentController {
             @ApiResponse(responseCode = "400", description = "Invalid commentId provided",
                     content = @Content(schema = @Schema(example = "{\"error\": \"Invalid commentId 1\"}"))),
             @ApiResponse(responseCode = "400", description = "Invalid unlike request attempted",
-                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid unlike request for entity 1 of type COMMENT from user abc\"}")))
+                    content = @Content(schema = @Schema(example = "{\"error\": \"Invalid unlike request for entity 1 of type COMMENT from user abc\"}"))),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized")
     })
     @DeleteMapping(CopygramPostAPI.COMMENT_LIKES_ENDPOINT)
     public ResponseEntity<Void> commentUnlike(@RequestParam(CopygramPostAPI.COMMENT_ID_QUERY_PARAM) String commentId,
@@ -81,6 +84,7 @@ public class CommentController {
     @Operation(summary = "Delete logged-in user's comment by commentId, will also delete likes")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Comment deleted"),
+            @ApiResponse(responseCode = "401", description = "Request was not authorized"),
             @ApiResponse(responseCode = "403", description = "User is forbidden to delete comment, most likely attempting to delete other user's comment",
                     content = @Content(schema = @Schema(example = "{\"error\": \"User abc is unauthorized to delete entity 1 of type COMMENT\"}")))
     })
