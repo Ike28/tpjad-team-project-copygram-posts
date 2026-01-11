@@ -41,14 +41,18 @@ public class JwtRemoteAuthFilter extends OncePerRequestFilter {
         try {
             result = remoteAuthClient.validate(token);
         } catch (Exception e) {
+            log.error("Authorization service unavailable.", e);
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "Authorization service unavailable");
             return;
         }
 
         if (!result.valid()) {
+            log.warn("Authorization of request with external service failed, invalid token.");
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Bearer token");
+            return;
         }
 
+        log.debug("Request authorization succeeded for user {} with id {}.", result.username(), result.userId());
         val authentication = new UsernamePasswordAuthenticationToken(
                 result.userId(),
                 null,
@@ -60,7 +64,7 @@ public class JwtRemoteAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getRequestURI();
+        val path = request.getRequestURI();
         return path.startsWith("/actuator/health")
                 || path.startsWith("/actuator/info")
                 || path.startsWith("/v3/api-docs")

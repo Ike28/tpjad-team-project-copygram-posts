@@ -43,8 +43,10 @@ public class PostService {
     public PostMetadataDto getPostMetadata(String postId) {
         val post = postRepository.findById(postId).orElseThrow(() -> new InvalidPostException(postId));
         val postLikes = postLikeRepository.countByPost_Id(postId);
+        log.info("Retrieved {} likes for post {}", postLikes, postId);
 
         val mappedComments = commentService.getPostCommentsWithMetadata(postId);
+        log.info("Retrieved {} comments for post {}", mappedComments, postId);
 
         return mapper.map(post, postLikes, mappedComments);
     }
@@ -54,18 +56,24 @@ public class PostService {
                 .stream()
                 .map(mapper::map)
                 .toList();
+        log.info("Retrieved {} posts for user {}", userPosts.size(), userId);
         return new UserPostsResponse(userId, userPosts);
     }
 
     public List<PostDto> getRandomPosts(int limit) {
-        return postRepository.findRandomPosts(limit)
+        val selected = postRepository.findRandomPosts(limit)
                 .stream()
                 .map(mapper::map)
                 .toList();
+
+        log.info("Retrieved {} random posts", selected.size());
+        return selected;
     }
 
     public String getPhotoIdForPost(String postId) {
         val post = postRepository.findById(postId).orElseThrow(() -> new InvalidPostException(postId));
+        log.info("Linked post {} with picture {}", postId, post.getPictureId());
+
         return post.getPictureId();
     }
 
@@ -73,6 +81,7 @@ public class PostService {
         if (!postRepository.existsByIdAndUserId(postId, userId)) {
             throw UnauthorizedDeletionException.unauthorizedPostDelete(userId, postId);
         }
+        log.info("Post {} identified from user {}, proceeding with deletion.", postId, userId);
         postRepository.deleteById(postId);
     }
 
@@ -80,8 +89,9 @@ public class PostService {
         if (postLikeRepository.existsByUserIdAndPost_Id(userId, postId)) {
             throw InvalidLikeActionException.duplicatePostLike(postId, userId);
         }
-
         val post = postRepository.findById(postId).orElseThrow(() -> new InvalidPostException(postId));
+
+        log.info("Validation of post like request succeeded, saving like for post {} from user {}", postId, userId);
         val postLikeEntity = PostLike.builder()
                 .userId(userId)
                 .post(post)
@@ -93,6 +103,7 @@ public class PostService {
         if (!postLikeRepository.existsByUserIdAndPost_Id(userId, postId)) {
             throw InvalidLikeActionException.invalidPostUnlike(postId, userId);
         }
+        log.info("Validation of post unlike request succeeded, removing like from post {} for user {}", postId, userId);
         postLikeRepository.deleteByUserIdAndPost_Id(userId, postId);
     }
 }

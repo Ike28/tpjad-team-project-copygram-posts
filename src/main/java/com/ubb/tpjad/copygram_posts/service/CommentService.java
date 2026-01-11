@@ -29,8 +29,10 @@ public class CommentService {
     public PostCommentDto postComment(PostCommentDto payload) {
         val post = postRepository.findById(payload.postId()).orElseThrow(() -> new InvalidPostException(payload.postId()));
         val mappedEntity = mapper.map(payload, post);
+        log.info("Mapped comment payload to entity with id {}", mappedEntity.getId());
 
         val commentEntity = commentRepository.save(mappedEntity);
+        log.info("Successfully persisted comment with id {}", commentEntity.getId());
         return mapper.map(commentEntity, 0);
     }
 
@@ -49,6 +51,7 @@ public class CommentService {
         if (commentLikeRepository.existsByUserIdAndComment_Id(userId, commentId)) {
             throw InvalidLikeActionException.duplicateCommentLike(commentId, userId);
         }
+        log.info("Validation of comment like request succeeded, saving like for comment {} from user {}", commentId, userId);
 
         val comment = commentRepository.findById(commentId).orElseThrow(() -> new InvalidCommentException(commentId));
         val commentLikeEntity = CommentLike.builder()
@@ -62,13 +65,17 @@ public class CommentService {
         if (!commentLikeRepository.existsByUserIdAndComment_Id(userId, commentId)) {
             throw InvalidLikeActionException.invalidCommentUnlike(commentId, userId);
         }
+        log.info("Validation of comment unlike request succeeded, removing like from comment {} for user {}", commentId, userId);
+
         commentLikeRepository.deleteByUserIdAndComment_Id(userId, commentId);
     }
 
-    public void deleteComment(String postId, String userId) {
-        if (!commentRepository.existsByIdAndUserId(postId, userId)) {
-            throw UnauthorizedDeletionException.unauthorizedCommentDelete(userId, postId);
+    public void deleteComment(String commentId, String userId) {
+        if (!commentRepository.existsByIdAndUserId(commentId, userId)) {
+            throw UnauthorizedDeletionException.unauthorizedCommentDelete(userId, commentId);
         }
-        commentRepository.deleteById(postId);
+        log.info("Comment {} identified from user {}, proceeding with deletion.", commentId, userId);
+
+        commentRepository.deleteById(commentId);
     }
 }

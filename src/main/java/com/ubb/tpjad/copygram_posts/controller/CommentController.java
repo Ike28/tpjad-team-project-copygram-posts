@@ -38,6 +38,8 @@ public class CommentController {
     public ResponseEntity<PostCommentDto> postComment(@RequestBody PostCommentDto commentDto,
                                                       Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received new post comment request from user {}", userId);
+
         val comment = commentService.postComment(PostCommentDto.builder()
                         .postId(commentDto.postId())
                         .text(commentDto.text())
@@ -60,6 +62,8 @@ public class CommentController {
     public ResponseEntity<Void> commentLike(@RequestParam(CopygramPostAPI.COMMENT_ID_QUERY_PARAM) String commentId,
                                             Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received new comment like request from user {} for comment {}", userId, commentId);
+
         commentService.commentLike(commentId, userId);
         return ResponseEntity.ok().build();
     }
@@ -77,6 +81,8 @@ public class CommentController {
     public ResponseEntity<Void> commentUnlike(@RequestParam(CopygramPostAPI.COMMENT_ID_QUERY_PARAM) String commentId,
                                               Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received new comment unlike request from user {} for comment {}", userId, commentId);
+
         commentService.commentUnlike(commentId, userId);
         return ResponseEntity.noContent().build();
     }
@@ -92,6 +98,7 @@ public class CommentController {
     public ResponseEntity<PostCommentDto> deleteComment(@RequestParam(CopygramPostAPI.COMMENT_ID_QUERY_PARAM) String commentId,
                                                         Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received new delete comment request from user {} for comment {}", userId, commentId);
         commentService.deleteComment(commentId, userId);
         return ResponseEntity.noContent().build();
     }

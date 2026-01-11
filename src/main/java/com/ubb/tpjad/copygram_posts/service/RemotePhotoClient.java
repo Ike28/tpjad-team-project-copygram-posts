@@ -2,6 +2,7 @@ package com.ubb.tpjad.copygram_posts.service;
 
 import com.ubb.tpjad.copygram_posts.api.CopygramPostAPI;
 import com.ubb.tpjad.copygram_posts.api.dto.PhotoMetadataDto;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -15,17 +16,15 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
+@Slf4j
 @Service
 public class RemotePhotoClient {
     private final RestClient restClient;
 
-    @Value("${photos.base-url}")
-    private String photosBaseUrl;
-
     @Value("${photos.path}")
     private String photosPath;
 
-    public RemotePhotoClient() {
+    public RemotePhotoClient(@Value("${photos.base-url}") String photosBaseUrl) {
         this.restClient = RestClient.builder()
                 .baseUrl(photosBaseUrl)
                 .build();
@@ -41,14 +40,19 @@ public class RemotePhotoClient {
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
                     if (res.getStatusCode().value() == 404) {
+                        log.warn("Photo with id {} not found", photoId);
                         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Photo not found");
                     }
                     if (res.getStatusCode().value() == 401) {
+                        log.error("Photo service rejected unauthorized request for photo {}", photoId);
                         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
                     }
+
+                    log.error("Photo service rejected bad request with status {}.", res.getStatusCode().value());
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Photo service rejected request");
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                    log.error("Photo service retrieval request for photo {} failed exceptionally with status {}.", photoId, res.getStatusCode().value());
                     throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Photo service error");
                 })
                 .toEntity(byte[].class);
@@ -74,15 +78,14 @@ public class RemotePhotoClient {
                 .body(body)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
-                    if (res.getStatusCode().value() == 404) {
-                        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Photo not found");
-                    }
                     if (res.getStatusCode().value() == 401) {
+                        log.error("Photo service rejected unauthorized photo upload request from user {}", userId);
                         throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
                     }
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Photo service rejected request");
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+                    log.error("Photo service upload request from user {} failed exceptionally with status {}.", userId, res.getStatusCode().value());
                     throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Photo service error");
                 })
                 .toEntity(PhotoMetadataDto.class);

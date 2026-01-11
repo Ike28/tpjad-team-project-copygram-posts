@@ -52,6 +52,8 @@ public class PostController {
     @GetMapping(CopygramPostAPI.POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getCurrentUserPosts(Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received current user posts request from user {}", userId);
+
         return ResponseEntity.ok(postService.getPostsByUserId(userId));
     }
 
@@ -63,6 +65,8 @@ public class PostController {
     })
     @GetMapping(CopygramPostAPI.USERS_POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getPostsByUserId(@RequestParam(CopygramPostAPI.USER_ID_QUERY_PARAM) String userId) {
+        log.info("Received user posts request for user {}", userId);
+
         return ResponseEntity.ok(postService.getPostsByUserId(userId));
     }
 
@@ -77,6 +81,7 @@ public class PostController {
     @GetMapping(CopygramPostAPI.POST_PICTURE_ENDPOINT)
     public ResponseEntity<byte[]> getPostPicture(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
                                             HttpServletRequest request) {
+        log.info("Received post photo retrieval request for postId {}", postId);
         val photoId = postService.getPhotoIdForPost(postId);
         val remoteResponse = photoClient.retrievePostPhoto(photoId, request.getHeader(HttpHeaders.AUTHORIZATION));
 
@@ -103,6 +108,8 @@ public class PostController {
     })
     @GetMapping(CopygramPostAPI.POST_METADATA_ENDPOINT)
     public ResponseEntity<PostMetadataDto> getPostMetadata(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId) {
+        log.info("Received post metadata request for postId {}", postId);
+
         val postMetadata = postService.getPostMetadata(postId);
         return ResponseEntity.ok(postMetadata);
     }
@@ -118,6 +125,7 @@ public class PostController {
     })
     @GetMapping(CopygramPostAPI.POSTS_RANDOM_ENDPOINT)
     public ResponseEntity<List<PostDto>> getRandomPosts(@RequestParam(CopygramPostAPI.POSTS_NUMBER_QUERY_PARAM) int postsCount) {
+        log.info("Received random posts retrieval request with limit {}", postsCount);
         if (postsCount < 0) {
             return ResponseEntity.noContent().build();
         }
@@ -148,6 +156,8 @@ public class PostController {
             @RequestParam(CopygramPostAPI.POST_PHOTO_FILE_REQUEST_PARAM) MultipartFile photoFile,
             Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received new post upload request from user {}", userId);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(postService.createPost(description, photoFile, userId));
     }
@@ -165,6 +175,8 @@ public class PostController {
     public ResponseEntity<Void> postLike(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
                                          Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received post like request from user {} for post {}", userId, postId);
+
         postService.postLike(postId, userId);
         return ResponseEntity.ok().build();
     }
@@ -182,6 +194,8 @@ public class PostController {
     public ResponseEntity<Void> postUnlike(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
                                            Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received post unlike request from user {} for post {}", userId, postId);
+
         postService.postUnlike(postId, userId);
         return ResponseEntity.noContent().build();
     }
@@ -197,6 +211,8 @@ public class PostController {
     public ResponseEntity<Void> deletePost(@RequestParam(CopygramPostAPI.POST_ID_QUERY_PARAM) String postId,
                                            Authentication authentication) {
         val userId = authentication.getName();
+        log.info("Received post delete request from user {} for post {}", userId, postId);
+
         postService.deletePost(postId, userId);
         return ResponseEntity.noContent().build();
     }
