@@ -33,7 +33,7 @@ public class PostService {
     public PostDto createPost(String description, MultipartFile photo, String userId) {
         val photoUploadResponse = photoClient.uploadPostPhoto(photo, description, userId);
         if (photoUploadResponse.getBody() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Photo upload returned unexpected result");
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "Photo upload service returned unexpected result");
         }
         val postEntity = mapper.map(userId, photoUploadResponse.getBody().id().toString(), description);
         val persisted = postRepository.save(postEntity);

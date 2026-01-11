@@ -2,18 +2,14 @@ package com.ubb.tpjad.copygram_posts.api.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
-import java.time.LocalDateTime;
-
+@Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record PhotoMetadataDto (
-        Long id,
-        String filename,
-        String contentType,
-        Long size,
-        Integer width,
-        Integer height,
-        LocalDateTime uploadedAt
+public record ErrorResponseDto (
+        @JsonProperty("error") String message,
+        @JsonProperty("limit") int limit
 ) {
 }

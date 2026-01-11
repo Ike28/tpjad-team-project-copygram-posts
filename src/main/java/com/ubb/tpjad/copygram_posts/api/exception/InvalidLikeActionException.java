@@ -10,26 +10,23 @@ public class InvalidLikeActionException extends RuntimeException {
     private static final String DUPLICATE_LIKE_MESSAGE_TEMPLATE = "Duplicate like request for entity %s of type %s from user %s";
     private static final String INVALID_UNLIKE_MESSAGE_TEMPLATE = "Invalid unlike request for entity %s of type %s from user %s";
 
-    private final String userId;
-
-    private InvalidLikeActionException(String message, String userId) {
+    private InvalidLikeActionException(String message) {
         super(message);
-        this.userId = userId;
     }
 
     public static InvalidLikeActionException duplicatePostLike(String postId, String userId) {
-        return new InvalidLikeActionException(DUPLICATE_LIKE_MESSAGE_TEMPLATE.formatted(postId, POST_ENTITY, userId), userId);
+        return new InvalidLikeActionException(DUPLICATE_LIKE_MESSAGE_TEMPLATE.formatted(postId, POST_ENTITY, userId));
     }
 
     public static InvalidLikeActionException duplicateCommentLike(String commentId, String userId) {
-        return new InvalidLikeActionException(DUPLICATE_LIKE_MESSAGE_TEMPLATE.formatted(commentId, COMMENT_ENTITY, userId), userId);
+        return new InvalidLikeActionException(DUPLICATE_LIKE_MESSAGE_TEMPLATE.formatted(commentId, COMMENT_ENTITY, userId));
     }
 
     public static InvalidLikeActionException invalidPostUnlike(String postId, String userId) {
-        return new InvalidLikeActionException(INVALID_UNLIKE_MESSAGE_TEMPLATE.formatted(postId, POST_ENTITY, userId), userId);
+        return new InvalidLikeActionException(INVALID_UNLIKE_MESSAGE_TEMPLATE.formatted(postId, POST_ENTITY, userId));
     }
 
     public static InvalidLikeActionException invalidCommentUnlike(String commentId, String userId) {
-        return new InvalidLikeActionException(INVALID_UNLIKE_MESSAGE_TEMPLATE.formatted(commentId, COMMENT_ENTITY, userId), userId);
+        return new InvalidLikeActionException(INVALID_UNLIKE_MESSAGE_TEMPLATE.formatted(commentId, COMMENT_ENTITY, userId));
     }
 }
