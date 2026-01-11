@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,13 @@ public class PostService {
                 .map(mapper::map)
                 .toList();
         return new UserPostsResponse(userId, userPosts);
+    }
+
+    public List<PostDto> getRandomPosts(int limit) {
+        return postRepository.findRandomPosts(limit)
+                .stream()
+                .map(mapper::map)
+                .toList();
     }
 
     public String getPhotoIdForPost(String postId) {

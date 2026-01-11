@@ -8,6 +8,9 @@ spring:
 server:
   port: 8828
 
+posts:
+  request-limit: 200
+
 auth:
   base-url: http://localhost:8890
   path: /api/auth/validate

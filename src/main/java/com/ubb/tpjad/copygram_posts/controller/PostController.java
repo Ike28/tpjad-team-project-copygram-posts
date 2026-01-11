@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,6 +31,9 @@ import java.util.Optional;
 public class PostController {
     private final PostService postService;
     private final RemotePhotoClient photoClient;
+
+    @Value("${posts.request-limit:150}")
+    private int postRequestLimit;
 
     @GetMapping(CopygramPostAPI.POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getCurrentUserPosts(Authentication authentication) {
@@ -69,7 +73,15 @@ public class PostController {
 
     @GetMapping(CopygramPostAPI.POSTS_RANDOM_ENDPOINT)
     public ResponseEntity<List<PostDto>> getRandomPosts(@RequestParam(CopygramPostAPI.POSTS_NUMBER_QUERY_PARAM) int postsCount) {
-        return null;
+        if (postsCount < 0) {
+            return ResponseEntity.noContent().build();
+        }
+        if (postsCount > postRequestLimit) {
+            return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).build();
+        }
+
+        val randomPosts = postService.getRandomPosts(postsCount);
+        return ResponseEntity.ok(randomPosts);
     }
 
     @PostMapping(
