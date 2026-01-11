@@ -51,7 +51,7 @@ public class PostController {
     })
     @GetMapping(CopygramPostAPI.POSTS_ENDPOINT)
     public ResponseEntity<UserPostsResponse> getCurrentUserPosts(Authentication authentication) {
-        val userId = authentication.getName();
+        val userId = (String) authentication.getPrincipal();
         log.info("Received current user posts request from user {}", userId);
 
         return ResponseEntity.ok(postService.getPostsByUserId(userId));

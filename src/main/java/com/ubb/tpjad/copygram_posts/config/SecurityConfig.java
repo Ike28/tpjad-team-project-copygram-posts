@@ -22,7 +22,7 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/webjars/**"
                         ).permitAll()
-                        .anyRequest().permitAll())
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtRemoteAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
