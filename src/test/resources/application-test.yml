@@ -1,0 +1,26 @@
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+
+posts:
+  request-limit: 200
+
+# These will be overridden by tests when using MockWebServer
+auth:
+  base-url: http://localhost:8890
+  path: /api/auth/validate
+
+photos:
+  base-url: http://localhost:8889
+  path: /api/photos
+
+# Logging for tests
+logging:
+  level:
+    com.ubb.tpjad.copygram_posts: DEBUG
+    org.springframework.security: DEBUG
